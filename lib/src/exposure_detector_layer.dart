@@ -42,6 +42,7 @@ Rect _localRectToGlobal(Layer layer, Rect localRect) {
 class ExposureTimeLayer {
   final int time;
   ExposureDetectorLayer layer;
+
   ExposureTimeLayer(this.time, this.layer);
 }
 
@@ -75,6 +76,7 @@ class ExposureDetectorLayer extends ContainerLayer {
   static final _exposureTime = <Key, ExposureTimeLayer>{};
 
   bool filter = false;
+
   static void setScheduleUpdate() {
     final bool isFirstUpdate = _updated.isEmpty;
 
@@ -172,24 +174,26 @@ class ExposureDetectorLayer extends ContainerLayer {
           key: layer.key,
           widgetBounds: widgetBounds,
           clipRect: layer._computeClipRect());
-      if (info.visibleFraction >= 0.5) {
-        if (_exposureTime[layer.key] != null &&
-            _exposureTime[layer.key].time > 0) {
-          if (nowTime - _exposureTime[layer.key].time >
-              ExposureDetectorController.instance.exposureTime) {
-            layer.onExposureChanged(info);
-            toRemove.add(layer.key);
-          } else {
-            setScheduleUpdate();
-            toReserveList.add(layer.key);
-            _exposureTime[layer.key].layer = layer;
-          }
-        } else {
-          _exposureTime[layer.key] = ExposureTimeLayer(nowTime, layer);
-
-          toReserveList.add(layer.key);
-          setScheduleUpdate();
-        }
+      if (info.visibleFraction >= 0.8) {
+        layer.onExposureChanged(info);
+        toRemove.add(layer.key);
+        // if (_exposureTime[layer.key] != null &&
+        //     _exposureTime[layer.key].time > 0) {
+        //   if (nowTime - _exposureTime[layer.key].time >
+        //       ExposureDetectorController.instance.exposureTime) {
+        //     layer.onExposureChanged(info);
+        //     toRemove.add(layer.key);
+        //   } else {
+        //     setScheduleUpdate();
+        //     toReserveList.add(layer.key);
+        //     _exposureTime[layer.key].layer = layer;
+        //   }
+        // } else {
+        //   _exposureTime[layer.key] = ExposureTimeLayer(nowTime, layer);
+        //
+        //   toReserveList.add(layer.key);
+        //   setScheduleUpdate();
+        // }
       }
 
       _exposureTime.removeWhere((key, _) => !toReserveList.contains(key));
